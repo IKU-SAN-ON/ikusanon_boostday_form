@@ -26,12 +26,12 @@ const InputPageServerWrapper = async ({params} : {params: Promise<{token: string
     forbidden();
   }
 
-  return (
-    <div>
-      <h1>Input Page (Server Side)</h1>
-      <InputPageClientSide userId={tokenSession.userId} />
-    </div>
-  );
+  const selectedDates = await prisma.availability.findMany({
+    where: { userId: tokenSession.userId },
+    select: { date: true },
+  });
+
+  return (<InputPageClientSide userId={tokenSession.userId} token={token} previousData={selectedDates.map(d => d.date)}/>);
 }
 
 export default InputPageServerWrapper;
