@@ -1,0 +1,45 @@
+
+services:
+  web:
+    container_name: ikusanon-boostday-form-web
+    build: .
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+    ports:
+      - "3000"
+    restart: unless-stopped
+    networks:
+      - webdb_network
+      - proxy_network
+  
+  nginx:
+    container_name: ikusanon-boostday-form-nginx
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "83:80"
+    restart: unless-stopped
+    networks:
+      - proxy_network
+
+  postgres:
+    container_name: ikusanon-boostday-form-postgres
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-ikusanon_boostday_form}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - webdb_network
+
+  networks:
+    webdb_network:
+      driver: bridge
+    proxy_network:
+      external: true
+      name: nginx-proxy
