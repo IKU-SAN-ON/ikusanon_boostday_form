@@ -91,6 +91,7 @@ COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 USER node
 
 # Expose port 3000 to allow HTTP traffic
+# Managed by docker-compose
 # EXPOSE 3000
 
 # Start Next.js standalone server
