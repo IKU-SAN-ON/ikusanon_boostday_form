@@ -6,7 +6,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=${DATABASE_URL}
-    ports:
+    expose:
       - "3000"
     restart: unless-stopped
     networks:
@@ -34,12 +34,14 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     restart: unless-stopped
+    expose:
+      - "5432"
     networks:
       - webdb_network
 
 networks:
   webdb_network:
     driver: bridge
+    internal: true
   proxy_network:
-    external: true
-    name: nginx-proxy
+    driver: bridge
