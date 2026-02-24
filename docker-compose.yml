@@ -37,9 +37,9 @@ services:
     networks:
       - webdb_network
 
-  networks:
-    webdb_network:
-      driver: bridge
-    proxy_network:
-      external: true
-      name: nginx-proxy
+networks:
+  webdb_network:
+    driver: bridge
+  proxy_network:
+    external: true
+    name: nginx-proxy
