@@ -49,15 +49,20 @@ ENV NODE_ENV=production
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Installs the Prisma CLI for generating Prisma Client during the build stage,
+# generates Prisma Client
+RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+  if [ -f pnpm-lock.yaml ]; then \
+    corepack enable pnpm && pnpm global add prisma && pnpm dlx prisma generate; \
+  else \
+    echo "No lockfile found." && exit 1; \
+  fi
 
 # Build Next.js application
 RUN --mount=type=cache,target=/app/.next/cache \
-  if [ -f package-lock.json ]; then \
-    npm run build; \
-  elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn build; \
-  elif [ -f pnpm-lock.yaml ]; then \
+  if [ -f pnpm-lock.yaml ]; then \
     corepack enable pnpm && pnpm build; \
   else \
     echo "No lockfile found." && exit 1; \
