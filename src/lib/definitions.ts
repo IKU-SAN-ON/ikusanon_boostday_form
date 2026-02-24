@@ -15,7 +15,6 @@ export const validateRequestSchema = z.object({
 
 export const SubmitDataRequestSchema = z.object({
   token: z.guid(),
-  userId: z.string().min(17).max(18).regex(/^\d+$/, 'User ID must be a numeric string'),
   selectedDates: z.array(z.coerce.date()),
 });
 

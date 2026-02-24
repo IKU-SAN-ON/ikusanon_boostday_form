@@ -10,10 +10,8 @@ import DateSelection from "@/components/DateSelect";
 import { useSelectedDates } from "@/stores/selectedDate";
 
 import { cn } from "@/lib/utils";
-import { set } from "zod";
 
 export interface InputPageClientSideProps extends React.HTMLAttributes<HTMLDivElement> {
-  userId: string;
   token: string;
   previousData?: Date[];
 }
@@ -31,9 +29,9 @@ const InputPageSuccess = ({className, ...rest}: React.HTMLAttributes<HTMLDivElem
 
 const InputPageFailure = ({className, error_message, ...rest}: React.HTMLAttributes<HTMLDivElement> & { error_message?: string }) => {
   const knownErrors: Record<string, string> = {
-    "Invalid data provided.": "Token無效。請確保鏈接未被修改。如有需要，請從 Discord 機器人獲取新的訪問鏈接。",
-    "Token expired or invalid, or userId does not match with token.": "Token已過期。請從 Discord 機器人獲取新的訪問鏈接。",
-    "Internal Server Error.": "服務器發生錯誤。",
+    "400": "提交的數據無效。請確保你選擇了有效的日期並重新提交。如果問題持續存在，請聯繫管理員。",
+    "401": "Token已過期或無效。請從 Discord 機器人獲取新的訪問鏈接，並儘早提交你的加成日提案。",
+    "500": "服務器發生錯誤。請稍後再試。如果問題持續存在，請聯繫管理員。",
   };
 
   const renderMessage = error_message && knownErrors[error_message] ? knownErrors[error_message] : "提交失敗，請稍後再試。";
@@ -48,7 +46,7 @@ const InputPageFailure = ({className, error_message, ...rest}: React.HTMLAttribu
   </div>);
 }
 
-const InputPageClientSide = ({className, userId, token, previousData, ...rest}: InputPageClientSideProps) => {
+const InputPageClientSide = ({className, token, previousData, ...rest}: InputPageClientSideProps) => {
 
   const selectedDates = useSelectedDates(state => state.selectedDates);
   const [loading, setLoading] = useState(false);
@@ -62,7 +60,6 @@ const InputPageClientSide = ({className, userId, token, previousData, ...rest}: 
         method: "POST",
         body: JSON.stringify({
           token,
-          userId,
           selectedDates,
         }),
         headers: {
@@ -74,7 +71,7 @@ const InputPageClientSide = ({className, userId, token, previousData, ...rest}: 
         setSuccess(true);
       } else {
         console.error("Submission failed:", data.message);
-        setErrorMessage(data.message);
+        setErrorMessage(response.status.toString());
         setSuccess(false);
       }
     } catch (error) {
