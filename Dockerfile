@@ -16,18 +16,7 @@ WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
 # Install project dependencies with frozen lockfile for reproducible builds
-RUN --mount=type=cache,target=/root/.npm \
-    --mount=type=cache,target=/usr/local/share/.cache/yarn \
-    --mount=type=cache,target=/root/.local/share/pnpm/store \
-  if [ -f package-lock.json ]; then \
-    npm ci --no-audit --no-fund; \
-  elif [ -f yarn.lock ]; then \
-    corepack enable yarn && yarn install --frozen-lockfile --production=false; \
-  elif [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
-  else \
-    echo "No lockfile found." && exit 1; \
-  fi
+RUN corepack enable pnpm && pnpm install --frozen-lockfile; 
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
@@ -53,20 +42,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
-  if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm global add prisma && pnpm dlx prisma generate; \
-  else \
-    echo "No lockfile found." && exit 1; \
-  fi
+RUN corepack enable pnpm && pnpm global add prisma && pnpm dlx prisma generate;
 
 # Build Next.js application
-RUN --mount=type=cache,target=/app/.next/cache \
-  if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm build; \
-  else \
-    echo "No lockfile found." && exit 1; \
-  fi
+RUN pnpm build;
 
 # ============================================
 # Stage 3: Run Next.js application
