@@ -7,9 +7,7 @@ import { validateRequestSchema } from "@/lib/definitions";
 import getUserDates from "@/services/userdata/getUserDates";
 import { InvalidTokenError } from "@/lib/errors";
 
-import { prisma } from "@/lib/prisma";
-
-import { forbidden } from "next/navigation";
+import { forbidden, unauthorized } from "next/navigation";
 
 const InputPageServerWrapper = async ({params} : {params: Promise<{token: string}>}) => {
   const { token } = await params;
@@ -17,7 +15,7 @@ const InputPageServerWrapper = async ({params} : {params: Promise<{token: string
     validateRequestSchema.parse({ token });
   } catch (error) {
     console.error('Invalid token format:', error);
-    forbidden();
+    unauthorized();
   }
 
   try {
