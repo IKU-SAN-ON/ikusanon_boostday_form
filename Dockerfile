@@ -71,10 +71,11 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+RUN corepack enable pnpm
 
 # Switch to non-root user for security best practices
 USER node
-RUN corepack enable pnpm
+
 
 # Expose port 3000 to allow HTTP traffic
 # Managed by docker-compose
