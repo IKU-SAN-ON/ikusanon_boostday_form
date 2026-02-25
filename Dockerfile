@@ -67,11 +67,13 @@ ENV HOSTNAME="0.0.0.0"
 # ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy production assets
+COPY --chown=node:node prisma.config.ts .
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 RUN corepack enable pnpm
+RUN pnpm dlx prisma migrate deploy
 
 # Switch to non-root user for security best practices
 USER node
@@ -82,4 +84,4 @@ USER node
 # EXPOSE 3000
 
 # Start Next.js standalone server
-CMD ["/bin/sh", "-c", "pnpm dlx prisma migrate deploy && node server.js"]
+CMD ["node", "server.js"]
