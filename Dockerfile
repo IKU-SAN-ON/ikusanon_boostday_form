@@ -73,7 +73,6 @@ COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 RUN corepack enable pnpm
-RUN pnpm dlx prisma migrate deploy
 
 # Switch to non-root user for security best practices
 USER node
@@ -84,4 +83,4 @@ USER node
 # EXPOSE 3000
 
 # Start Next.js standalone server
-CMD ["node", "server.js"]
+CMD ["/bin/sh", "-c", "pnpm dlx prisma migrate deploy && node server.js"]
