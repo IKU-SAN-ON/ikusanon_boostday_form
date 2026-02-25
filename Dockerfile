@@ -42,7 +42,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
-RUN corepack enable pnpm && pnpm dlx prisma generate && pnpm dlx prisma migrate deploy;
+RUN corepack enable pnpm && pnpm dlx prisma generate;
 
 # Build Next.js application
 RUN pnpm build;
@@ -73,10 +73,11 @@ COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 
 # Switch to non-root user for security best practices
 USER node
+RUN corepack enable pnpm
 
 # Expose port 3000 to allow HTTP traffic
 # Managed by docker-compose
 # EXPOSE 3000
 
 # Start Next.js standalone server
-CMD ["node", "server.js"]
+CMD ["/bin/sh", "-c", "pnpm dlx prisma migrate deploy && node server.js"]
