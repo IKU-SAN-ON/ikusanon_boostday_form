@@ -9,7 +9,7 @@ services:
     expose:
       - "3000"
     restart: unless-stopped
-    requires:
+    depends_on:
       - postgres
     networks:
       - webdb_network
@@ -23,7 +23,7 @@ services:
     ports:
       - "83:80"
     restart: unless-stopped
-    requires:
+    depends_on:
       - web
     networks:
       - proxy_network
