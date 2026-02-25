@@ -42,7 +42,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
-RUN corepack enable pnpm && pnpm dlx prisma generate && pnpm dlx prisma generate;
+RUN corepack enable pnpm && pnpm dlx prisma generate && pnpm dlx prisma migrate deploy;
 
 # Build Next.js application
 RUN pnpm build;
