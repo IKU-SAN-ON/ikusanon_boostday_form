@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const tokenGenRequestSchema = z.object({
-  userId: z.string().min(17).max(18).regex(/^\d+$/, 'User ID must be a numeric string'),
+  userId: z.string().min(17).max(22).regex(/^\d+$/, 'User ID must be a numeric string'),
 })
 
 export const tokenGenResponseSchema = z.object({

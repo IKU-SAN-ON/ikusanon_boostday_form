@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { NextResponse } from "next/server";
+import { NextRequest , NextResponse } from "next/server";
 
 import { InvalidTokenError } from "@/lib/errors";
 
@@ -10,7 +10,7 @@ import invalidateToken from "@/services/auth/invalidateToken";
 
 import { SubmitDataRequestSchema, SubmitDataResponseSchema } from "@/lib/definitions";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const requestData = await request.json();
     console.log("Received submission data:", requestData);

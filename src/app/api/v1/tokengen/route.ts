@@ -1,12 +1,12 @@
 import { z } from 'zod';
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import getNewToken from '@/services/auth/getNewToken';
 
 import { tokenGenRequestSchema, tokenGenResponseSchema } from '@/lib/definitions';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const requestBody = await request.json();
     const { userId } = tokenGenRequestSchema.parse(requestBody);
