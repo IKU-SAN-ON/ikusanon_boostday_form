@@ -26,6 +26,7 @@ model availability {
   id     String   @id @default(uuid())
   userId String   
   date   DateTime @db.Date // Store only the date part, without time
+  createdAt DateTime @default(now())
 
   @@unique([userId, date]) 
   @@index([date])
