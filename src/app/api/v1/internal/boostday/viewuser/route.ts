@@ -21,15 +21,15 @@ export async function GET(request: NextRequest) {
       month: params.get('month'),
     });
 
-    const userDates = await getUserDateByYearMonth(userId, year, month);
+    const userDates = await getUserDateByYearMonth(userId, year, month - 1);
 
-    return NextResponse.json(userDates);
+    return NextResponse.json({ success: true, data: userDates });
   } catch (error) {
     if (error instanceof z.ZodError) {
       console.error('Validation error in GET /api/v1/internal/boostday/viewuser:', error);
-      return NextResponse.json({ error: 'Invalid request data', details: error }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Invalid request data', details: error }, { status: 400 });
     }
     console.error('Error in GET /api/v1/internal/boostday/viewuser:', error);
-    return NextResponse.json({ error: 'Failed to retrieve user dates' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to retrieve user dates' }, { status: 500 });
   }
 }

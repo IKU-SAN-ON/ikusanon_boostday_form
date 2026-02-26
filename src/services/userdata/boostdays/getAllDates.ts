@@ -31,13 +31,13 @@ export default async function getAllDates(): Promise<{ date: Date, userId: strin
  * @returns An array of objects, each containing a date and the corresponding userId for the specified year and month.
  * @throws Error if there is an issue with the database operation.
  */
-export async function getAllDatesByYearMonth(year: number, month: number): Promise<{ date: Date, userId: string }[]> {
+export async function getAllDatesByYearMonth(year: number, month: number): Promise<{ date: Date, userId: string, createdAt: Date }[]> {
   const startDate = new Date(year, month, 1); // Start of the month
   const endDate = new Date(year, month + 1, 0); // End of the month
 
   try {
     const allDates = await prisma.availability.findMany({
-      select: { date: true, userId: true },
+      select: { date: true, userId: true, createdAt: true },
       where: {
         date: {
           gte: startDate,

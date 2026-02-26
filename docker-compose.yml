@@ -14,6 +14,7 @@ services:
     networks:
       - webdb_network
       - proxy_network
+      - webbot_network
   
   nginx:
     container_name: ikusanon-boostday-form-nginx
@@ -49,3 +50,5 @@ networks:
     internal: true
   proxy_network:
     driver: bridge
+  webbot_network:
+    external: true

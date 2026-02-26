@@ -35,13 +35,15 @@ export default async function getUserDates(userId: string): Promise<Date[]> {
  * @param month The month (0-11) for which to retrieve the dates.
  * @returns A promise that resolves to an array of Date objects.
  */
-export async function getUserDateByYearMonth(userId: string, year: number, month: number): Promise<Date[]> {
+export async function getUserDateByYearMonth(userId: string, year: number, month: number): Promise<{date: Date, createdAt: Date}[]> {
   const startDate = new Date(year, month, 1);
   const endDate = new Date(year, month + 1, 0); // Last day of the month
 
   const userDates = await prisma.availability.findMany({
     where: {
-      userId: userId,
+      userId: {
+        equals: userId,
+      },
       date: {
         gte: startDate,
         lte: endDate,
@@ -51,5 +53,5 @@ export async function getUserDateByYearMonth(userId: string, year: number, month
     orderBy: { date: "asc" },
   });
 
-  return userDates.map(record => record.date);
+  return userDates;
 }
