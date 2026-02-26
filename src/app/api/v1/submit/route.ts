@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 
 import { InvalidTokenError } from "@/lib/errors";
 
-import submitUserDates from "@/services/userdata/submitUserDates";
+import getTokenSession from "@/services/auth/getTokenSession";
+import submitUserDates from "@/services/userdata/boostdays/submitUserDates";
+import invalidateToken from "@/services/auth/invalidateToken";
 
 import { SubmitDataRequestSchema, SubmitDataResponseSchema } from "@/lib/definitions";
 
@@ -12,9 +14,12 @@ export async function POST(request: Request) {
   try {
     const requestData = await request.json();
     console.log("Received submission data:", requestData);
-    const parsedData = SubmitDataRequestSchema.parse(requestData);
 
-    await submitUserDates(parsedData.token, parsedData.selectedDates);
+    const { token, selectedDates } = SubmitDataRequestSchema.parse(requestData);
+
+    const userId = await getTokenSession(token);
+    await submitUserDates(userId, selectedDates);
+    await invalidateToken(token);
 
     return NextResponse.json(SubmitDataResponseSchema.parse({ success: true, message: "Dates submitted successfully." }));
     

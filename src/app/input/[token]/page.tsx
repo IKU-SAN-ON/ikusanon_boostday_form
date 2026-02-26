@@ -4,7 +4,8 @@ import InputPageClientSide from "./InputPageClientSide";
 
 import { validateRequestSchema } from "@/lib/definitions";
 
-import getUserDates from "@/services/userdata/getUserDates";
+import getTokenSession from "@/services/auth/getTokenSession";
+import getUserDates from "@/services/userdata/boostdays/getUserDates";
 import { InvalidTokenError } from "@/lib/errors";
 
 import { forbidden, unauthorized } from "next/navigation";
@@ -19,7 +20,8 @@ const InputPageServerWrapper = async ({params} : {params: Promise<{token: string
   }
 
   try {
-    const selectedDates = await getUserDates(token);
+    const userId = await getTokenSession(token);
+    const selectedDates = await getUserDates(userId);
 
     return (<InputPageClientSide token={token} previousData={selectedDates}/>);
   } catch (error) {
