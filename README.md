@@ -63,8 +63,7 @@ docker compose up --build
 
 ### Main Routes
 - `GET /` — landing page
-- `GET /input` — input entry page
-- `GET /input/[token]` — token-based input page
+- `GET /input/[token]` — input page
 
 ### API Endpoints
 Public endpoints
