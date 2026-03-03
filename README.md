@@ -1,36 +1,171 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ikusanon_boostday_form
 
-## Getting Started
+Next.js + Prisma application for collecting and viewing Boost Day availability data.
 
-First, run the development server:
+## Table of Contents
+- [Versions](#versions)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [File Structure](#file-structure)
+- [Browser Support](#browser-support)
+- [Resources](#resources)
+- [Reporting Issues](#reporting-issues)
+- [FAQs](#faqs)
+- [Licensing](#licensing)
+- [Useful Links](#useful-links)
 
+## Versions
+- App: `0.1.0`
+- Node.js: `>=20` (recommended)
+- Package manager: `pnpm@10.30.1`
+- Next.js: `16.1.6`
+- React: `19.2.3`
+- Prisma: `7.4.1`
+- PostgreSQL: `15+` (Docker compose uses `postgres:15`)
+
+## Quick Start
+### 1) Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2) Create environment file
+Create `.env` in the project root (do not commit this file):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+DATABASE_URL=postgresql://...
+POSTGRES_USER=<your_postgres_user>
+POSTGRES_PASSWORD=<your_postgres_password>
+POSTGRES_DB=<your_postgres_db>
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+A `.env.example` has been attached for reference.
 
-## Learn More
+### 3) Generate Prisma client and run migrations
+```bash
+pnpm prisma generate
+pnpm prisma migrate dev # for development purpose
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 4) Start development server
+```bash
+pnpm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open: `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Optional: Run with Docker Compose
+```bash
+docker compose up --build
+```
 
-## Deploy on Vercel
+## Documentation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Main Routes
+- `GET /` — landing page
+- `GET /input` — input entry page
+- `GET /input/[token]` — token-based input page
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### API Endpoints
+Public endpoints
+- `POST /api/v1/submit` — submit selected dates using token
+
+Internal endpoints
+- `POST /api/v1/internal/auth/tokengen` — generate token for a user (internal)
+- `GET /api/v1/internal/boostday/viewall?year=<yyyy>&month=<1-12>` — fetch all users' dates for a month (internal)
+- `GET /api/v1/internal/boostday/viewuser?userId=<id>&year=<yyyy>&month=<1-12>` — fetch one user’s dates (internal)
+
+### Data Model (Prisma)
+- `tokenSessions` table
+	- `id`, `token`, `userId`, `expiresAt`
+- `availabilities` table
+	- `id`, `userId`, `date`, `createdAt`
+
+View `prisma/schema.prisma` for details.
+
+## File Structure
+```text
+.
+├─ prisma/
+│  ├─ schema.prisma
+│  └─ migrations/
+├─ public/
+│  └─ images/
+├─ src/
+│  ├─ app/
+│  │  ├─ api/v1/
+│  │  │  ├─ internal/
+│  │  │  │  ├─ auth/tokengen/route.ts
+│  │  │  │  └─ boostday/
+│  │  │  │     ├─ viewall/route.ts
+│  │  │  │     └─ viewuser/route.ts
+│  │  │  └─ submit/route.ts
+│  │  ├─ input/
+│  │  │  ├─ page.tsx
+│  │  │  └─ [token]/
+│  │  │     ├─ page.tsx
+│  │  │     └─ InputPageClientSide.tsx
+│  │  ├─ layout.tsx
+│  │  └─ page.tsx
+│  ├─ components/
+│  ├─ generated/prisma/
+│  ├─ lib/
+│  ├─ services/
+│  └─ stores/
+├─ docker-compose.yml
+├─ Dockerfile
+├─ next.config.ts
+└─ package.json
+```
+
+## Browser Support
+This project uses the following browser target from `package.json`:
+
+- `> 1%`
+
+For best compatibility, use current stable versions of:
+- Chrome
+- Edge
+- Firefox
+- Safari
+
+## Resources
+- Framework: Next.js App Router
+- ORM: Prisma
+- Database: PostgreSQL
+- Validation: Zod
+- State management: Zustand
+- Date UI: react-day-picker
+- Styling: Tailwind CSS + daisyUI
+
+## Reporting Issues
+When reporting an issue, include:
+- Steps to reproduce
+- Expected behavior
+- Actual behavior
+- Error logs (with secrets redacted)
+- Environment details (OS, Node.js version, browser)
+
+Please never paste secrets (for example: full database URLs, tokens, or passwords) into issues.
+
+## FAQs
+### Q: Where should I put environment variables?
+In a local `.env` file in the project root.
+
+### Q: I changed `schema.prisma`. What should I run?
+Run Prisma commands to generate client and apply migrations.
+
+### Q: Which endpoints are internal-only?
+All routes under `/api/v1/internal/*` are intended for internal use.
+
+## Licensing
+No license file is currently included in this repository.
+
+## Useful Links
+- Next.js: https://nextjs.org/docs
+- Prisma: https://www.prisma.io/docs
+- PostgreSQL: https://www.postgresql.org/docs/
+- Zod: https://zod.dev/
+- Zustand: https://zustand.docs.pmnd.rs/
+- Tailwind CSS: https://tailwindcss.com/docs
+- daisyUI: https://daisyui.com/docs/intro/
