@@ -2,19 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 
 export default function Forbidden() {
-  const images = [
-    "ralsei_beats.png",
-    "ralsei_dance.png",
-    "ralsei_groove.png",
-  ];
-
-  const randomImage = images[Math.floor(Math.random() * images.length)];
-
+  
   return (
     <main className="hero min-h-screen">
       <div className="hero-content flex-col gap-4 lg:flex-row lg:gap-8">
         <div className="flex flex-col gap-2 items-center rounded-(--radius-box) p-4">
-          <Image src={`/images/${randomImage}`} alt="Random Ralsei Image" width={240} height={240} unoptimized loading="eager"/>
+          <Image src={`/images/ralsei_beats.png`} alt="Random Ralsei Image" width={240} height={240} unoptimized loading="eager"/>
           <span className="w-full text-right text-xs opacity-50">Source:{" "}
             <Link 
               className="underline hover:cursor-pointer" 
