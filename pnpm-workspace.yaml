@@ -1,7 +1,12 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
 onlyBuiltDependencies:
   - '@prisma/engines'
   - esbuild
   - prisma
+
+overrides:
+  '@hono/node-server@<1.19.13': '>=1.19.13'
+  defu@<=6.1.4: '>=6.1.5'
