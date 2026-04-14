@@ -15,8 +15,8 @@ WORKDIR /app
 # Copy package-related files first to leverage Docker's caching mechanism
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
-# Install project dependencies with frozen lockfile for reproducible builds
-RUN corepack enable pnpm && pnpm install --frozen-lockfile; 
+RUN corepack enable pnpm;
+RUN pnpm install --frozen-lockfile;
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
@@ -73,6 +73,8 @@ COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 RUN corepack enable pnpm
+
+RUN apt-get update -y && apt-get install -y openssl
 
 # Switch to non-root user for security best practices
 USER node
