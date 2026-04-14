@@ -16,7 +16,7 @@ WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
 RUN corepack enable pnpm;
-RUN pnpm install --frozen-lockfile;
+RUN pnpm install --prod --no-frozen-lockfile;
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
