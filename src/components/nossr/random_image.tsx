@@ -16,6 +16,7 @@ export default function RandomImage() {
       height={240}
       unoptimized
       loading="eager"
+      fetchPriority="high"
     />
   );
 }
