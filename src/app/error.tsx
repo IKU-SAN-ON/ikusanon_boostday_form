@@ -1,27 +1,19 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
-import { useRef } from "react";
+import dynamic from "next/dynamic";
 
-import { getRandomRalseiImage } from "@/utils/picture";
+const RandomImage = dynamic(() => import("@/components/nossr/random_image"), {
+  ssr: false,
+});
 
 export default function InternalError() {
-  const randomImage = useRef(getRandomRalseiImage());
-
   return (
     <main className="hero min-h-screen">
       <div className="hero-content flex-col gap-4 lg:flex-row lg:gap-8">
         <div className="flex flex-col gap-2 items-center rounded-(--radius-box) p-4">
-          <Image
-            src={randomImage.current}
-            alt="Random Ralsei Image"
-            width={240}
-            height={240}
-            unoptimized
-            loading="eager"
-          />
+          <RandomImage />
           <span className="w-full text-right text-xs opacity-50">
             Source:{" "}
             <Link
