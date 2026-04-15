@@ -1,27 +1,44 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 
+import { useRef } from "react";
+
+import { getRandomRalseiImage } from "@/utils/picture";
+
 export default function Forbidden() {
+  const randomImage = useRef(getRandomRalseiImage());
 
   return (
     <main className="hero min-h-screen">
       <div className="hero-content flex-col gap-4 lg:flex-row lg:gap-8">
         <div className="flex flex-col gap-2 items-center rounded-(--radius-box) p-4">
-          <Image src={`/images/ralsei_groove.png`} alt="Random Ralsei Image" width={240} height={240} unoptimized loading="eager"/>
-          <span className="w-full text-right text-xs opacity-50">Source:{" "}
-            <Link 
-              className="underline hover:cursor-pointer" 
+          <Image
+            src={randomImage.current}
+            alt="Random Ralsei Image"
+            width={240}
+            height={240}
+            unoptimized
+            loading="eager"
+          />
+          <span className="w-full text-right text-xs opacity-50">
+            Source:{" "}
+            <Link
+              className="underline hover:cursor-pointer"
               href="https://www.youtube.com/@Cwitchy"
-              target="_blank" rel="noopener noreferrer"
+              target="_blank"
+              rel="noopener noreferrer"
             >
               Cwitchy
             </Link>
             {" | "}
-            <Link 
-              className="underline hover:cursor-pointer" 
-              href="https://discord.gg/fluffcord" 
-              target="_blank" 
-              rel="noopener noreferrer">
+            <Link
+              className="underline hover:cursor-pointer"
+              href="https://discord.gg/fluffcord"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               d/fluffcord
             </Link>
           </span>
@@ -33,9 +50,7 @@ export default function Forbidden() {
           </p>
           <div className="divider" />
           <h1 className="text-5xl font-bold">403 - 拒絕訪問</h1>
-          <p className="py-6">
-            你被伺服器拒絕訪問了。不然檢查一下鏈接看看？
-          </p>
+          <p className="py-6">你被伺服器拒絕訪問了。不然檢查一下鏈接看看？</p>
         </div>
       </div>
     </main>
