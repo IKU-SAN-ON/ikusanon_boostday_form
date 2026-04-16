@@ -42,7 +42,7 @@ export default function Forbidden() {
           </p>
           <div className="divider" />
           <h1 className="text-5xl font-bold">403 - 拒絕訪問</h1>
-          <p className="py-6">你被伺服器拒絕訪問了。不然檢查一下鏈接看看？</p>
+          <p className="py-6">你被伺服器拒絕訪問了。不然檢查一下你的超連結？</p>
         </div>
       </div>
     </main>
