@@ -20,6 +20,11 @@ export default async function submitUserDates(
   token: string,
 ): Promise<void> {
   try {
+    // Create new date records for the user
+    const newRecords = dates.map((date) => ({
+      userId: userId,
+      date: date,
+    }));
     // Start a transaction to ensure atomicity of the operations
     await prisma.$transaction(async (prisma) => {
       // Delete existing date records for the user
@@ -27,11 +32,6 @@ export default async function submitUserDates(
         where: { userId: userId },
       });
 
-      // Create new date records for the user
-      const newRecords = dates.map((date) => ({
-        userId: userId,
-        date: date,
-      }));
       await prisma.availability.createMany({
         data: newRecords,
       });

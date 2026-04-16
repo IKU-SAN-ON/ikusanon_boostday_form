@@ -12,12 +12,31 @@ import {
   SubmitDataResponseSchema,
 } from "@/lib/definitions";
 
+import { verifyDate } from "@/utils/verifyDate";
+
 export async function POST(request: NextRequest) {
   try {
     const requestData = await request.json();
     console.log("Received submission data:", requestData);
 
     const { token, selectedDates } = SubmitDataRequestSchema.parse(requestData);
+
+    // Verify Date selection (> today, < end of next month)
+    const today = new Date();
+    if (
+      !selectedDates.every((date) => {
+        return verifyDate(date, today);
+      })
+    ) {
+      return NextResponse.json(
+        SubmitDataResponseSchema.parse({
+          success: false,
+          message:
+            "Selected dates must be in the future and within the next month.",
+        }),
+        { status: 400 },
+      );
+    }
 
     const userId = await getTokenSession(token);
     await submitUserDates(userId, selectedDates, token);
