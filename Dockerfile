@@ -16,7 +16,8 @@ WORKDIR /app
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
 RUN corepack enable pnpm;
-RUN pnpm install --no-frozen-lockfile;
+ENV CI=1;
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts --prefer-offline;
 
 # ============================================
 # Stage 2: Build Next.js application in standalone mode
@@ -39,6 +40,7 @@ ENV NODE_ENV=production
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV CI=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
