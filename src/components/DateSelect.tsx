@@ -2,8 +2,8 @@
 import { useMemo, useEffect } from "react";
 import { useSelectedDates } from "@/stores/selectedDate";
 
-import { DayPicker } from "react-day-picker";
-import { zhTW } from "react-day-picker/locale";
+import { DayPicker, TZDate } from "@daypicker/react";
+import { zhTW } from "@daypicker/react/locale";
 
 import { getRangeOfValidDates } from "@/utils/verifyDate";
 
@@ -35,18 +35,25 @@ const DatePickerComponent = ({
   }, [initialSelectedDates, setSelectedDates]);
 
   return (
-    <DayPicker
-      className={cn("react-day-picker", className)}
-      mode="multiple"
-      timeZone="UTC"
-      selected={selectedDates}
-      onSelect={setSelectedDates}
-      locale={zhTW}
-      disabled={{
-        before: tomorrow,
-        after: twoMonthFirstDay,
-      }}
-    />
+    <div className="flex flex-col items-center gap-4">
+      <DayPicker
+        className={cn("react-day-picker", className)}
+        mode="multiple"
+        timeZone="UTC"
+        selected={selectedDates}
+        onSelect={setSelectedDates}
+        locale={zhTW}
+        disabled={{
+          before: tomorrow,
+          after: twoMonthFirstDay,
+        }}
+      />
+      <div className="flex gap-2 justify-end w-full">
+        <button className="btn btn-sm btn-primary">
+          <span>Reset</span>
+        </button>
+      </div>
+    </div>
   );
 };
 
