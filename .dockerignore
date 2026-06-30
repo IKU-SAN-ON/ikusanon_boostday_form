@@ -1,0 +1,10 @@
+.next/
+node_modules
+.env.example
+.git/
+.DS_Store
+
+nginx.conf
+README.md
+
+biome.json
