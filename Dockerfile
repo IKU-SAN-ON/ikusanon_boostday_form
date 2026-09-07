@@ -44,7 +44,7 @@ ENV CI=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
-RUN corepack enable pnpm && pnpm dlx prisma generate;
+RUN corepack enable pnpm && pnpm dlx @prisma/prisma7 generate;
 
 # Build Next.js application
 RUN pnpm build;
@@ -69,7 +69,7 @@ ENV HOSTNAME="0.0.0.0"
 # ENV NEXT_TELEMETRY_DISABLED=1
 
 # Copy production assets
-COPY --chown=node:node prisma.config.ts .
+COPY --chown=node:node prisma7.config.ts .
 COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
@@ -87,4 +87,4 @@ USER node
 # EXPOSE 3000
 
 # Start Next.js standalone server
-CMD ["/bin/sh", "-c", "pnpm dlx prisma migrate deploy && node server.js"]
+CMD ["/bin/sh", "-c", "pnpm dlx @prisma/prisma7 migrate deploy && node server.js"]
