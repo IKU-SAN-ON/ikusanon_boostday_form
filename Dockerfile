@@ -15,7 +15,10 @@ WORKDIR /app
 # Copy package-related files first to leverage Docker's caching mechanism
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 
+# why do they remove corepack???????????????
+RUN npm i -g corepack && corepack enable
 RUN corepack enable pnpm;
+
 ENV CI=1;
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts --prefer-offline;
 
@@ -44,6 +47,7 @@ ENV CI=1
 
 # Installs the Prisma CLI for generating Prisma Client during the build stage,
 # generates Prisma Client
+RUN npm i -g corepack && corepack enable
 RUN corepack enable pnpm && pnpm dlx @prisma/prisma7 generate;
 
 # Build Next.js application
@@ -74,6 +78,8 @@ COPY --from=builder --chown=node:node /app/prisma ./prisma
 COPY --from=builder --chown=node:node /app/public ./public
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+
+RUN npm i -g corepack && corepack enable
 RUN corepack enable pnpm
 
 RUN apt-get update -y && apt-get install -y openssl
