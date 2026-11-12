@@ -1,0 +1,194 @@
+name: Publish container images
+
+# Builds and publishes two images to GHCR when a version tag is pushed:
+#
+#   ghcr.io/<owner>/ikusanon-web:<tag>          -> production web server
+#   ghcr.io/<owner>/ikusanon-web-migrate:<tag>  -> Prisma migration job
+#
+# Production hosts pull those images instead of building from this repository.
+#
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-images-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  RUNTIME_IMAGE: ikusanon-web
+  MIGRATE_IMAGE: ikusanon-web-migrate
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # GHCR image names must be lowercase; organisation names are not.
+      - name: Normalise repository owner
+        id: owner
+        run: echo "value=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_OUTPUT"
+
+      # Only needed when DOCKER_PLATFORMS includes a non-native architecture.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # ---------------------------------------------------------------
+      # Runtime image (Next.js standalone server)
+      # ---------------------------------------------------------------
+      - name: Compute runtime metadata
+        id: runtime-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.owner.outputs.value }}/${{ env.RUNTIME_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+            type=sha,format=short,prefix=sha-
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && !contains(github.ref_name, '-') }}
+          labels: |
+            org.opencontainers.image.title=IKUSANON boostday form
+            org.opencontainers.image.description=Next.js application for IKUSANON boost-day scheduling
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Build and push runtime image
+        id: runtime-build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: runner
+          # Set the repository variable DOCKER_PLATFORMS to e.g.
+          # "linux/amd64,linux/arm64" if the production host is not amd64.
+          platforms: ${{ vars.DOCKER_PLATFORMS || 'linux/amd64' }}
+          push: true
+          tags: ${{ steps.runtime-meta.outputs.tags }}
+          labels: ${{ steps.runtime-meta.outputs.labels }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+          # Supply-chain metadata attached to the image.
+          provenance: true
+          sbom: true
+
+      # ---------------------------------------------------------------
+      # Migration image (Prisma CLI + schema + migrations)
+      # Kept separate so the runtime image stays small and CLI-free.
+      # ---------------------------------------------------------------
+      - name: Compute migration metadata
+        id: migrate-meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ steps.owner.outputs.value }}/${{ env.MIGRATE_IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=ref,event=tag
+            type=sha,format=short,prefix=sha-
+            type=raw,value=latest,enable=${{ github.event_name == 'push' && !contains(github.ref_name, '-') }}
+          labels: |
+            org.opencontainers.image.title=IKUSANON boostday form migration job
+            org.opencontainers.image.description=One-shot Prisma migration job for the IKUSANON boostday form
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+
+      - name: Build and push migration image
+        id: migrate-build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: migrate
+          platforms: ${{ vars.DOCKER_PLATFORMS || 'linux/amd64' }}
+          push: true
+          tags: ${{ steps.migrate-meta.outputs.tags }}
+          labels: ${{ steps.migrate-meta.outputs.labels }}
+          # The dependency layers were already compiled and exported by the
+          # runtime build above, so only the migration-specific layers differ.
+          cache-from: type=gha,scope=web
+          provenance: true
+          sbom: true
+
+      - name: Verify the images are publicly pullable
+        env:
+          OWNER: ${{ steps.owner.outputs.value }}
+          RUNTIME_IMAGE: ${{ env.RUNTIME_IMAGE }}
+          MIGRATE_IMAGE: ${{ env.MIGRATE_IMAGE }}
+          RUNTIME_TAGS: ${{ steps.runtime-meta.outputs.tags }}
+          MIGRATE_TAGS: ${{ steps.migrate-meta.outputs.tags }}
+        run: |
+          check_public() {
+            image="$1"
+            tags="$2"
+            tag=${tags%%$'\n'*}
+            if [ -z "$tag" ]; then
+              echo "No tag was produced for ${image}; skipping."
+              return 0
+            fi
+
+            token=$(curl -fsS "https://ghcr.io/token?service=ghcr.io&scope=repository:${OWNER}/${image}:pull" \
+              | jq -r '.token // empty' || true)
+            code="no-token"
+            if [ -n "$token" ]; then
+              code=$(curl -s -o /dev/null -w '%{http_code}' \
+                -H "Authorization: Bearer ${token}" \
+                -H "Accept: application/vnd.oci.image.index.v1+json, application/vnd.oci.image.manifest.v1+json, application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" \
+                "https://ghcr.io/v2/${OWNER}/${image}/manifests/${tag}")
+            fi
+
+            if [ "$code" = "200" ]; then
+              echo "Anonymous pull OK: ${image}:${tag} is public."
+            else
+              echo "::warning::Anonymous pull for ${image}:${tag} returned HTTP ${code}."
+              echo "Make the package public once: https://github.com/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${image}/settings"
+              echo "Org owners can also set Settings -> Packages -> Package Creation to Public for future packages."
+            fi
+          }
+
+          check_public "$RUNTIME_IMAGE" "$RUNTIME_TAGS"
+          check_public "$MIGRATE_IMAGE" "$MIGRATE_TAGS"
+
+      - name: Write job summary
+        env:
+          RUNTIME_TAGS: ${{ steps.runtime-meta.outputs.tags }}
+          RUNTIME_DIGEST: ${{ steps.runtime-build.outputs.digest }}
+          MIGRATE_TAGS: ${{ steps.migrate-meta.outputs.tags }}
+          MIGRATE_DIGEST: ${{ steps.migrate-build.outputs.digest }}
+          RUNTIME_IMAGE: ${{ env.RUNTIME_IMAGE }}
+          MIGRATE_IMAGE: ${{ env.MIGRATE_IMAGE }}
+        run: |
+          {
+            echo "## Published web images"
+            echo ""
+            echo "### Runtime"
+            echo '```'
+            printf '%s\n' "$RUNTIME_TAGS"
+            echo '```'
+            printf 'Digest: `%s`\n' "$RUNTIME_DIGEST"
+            echo "Package: https://github.com/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${RUNTIME_IMAGE}"
+            echo ""
+            echo "### Migration job"
+            echo '```'
+            printf '%s\n' "$MIGRATE_TAGS"
+            echo '```'
+            printf 'Digest: `%s`\n' "$MIGRATE_DIGEST"
+            echo "Package: https://github.com/orgs/${GITHUB_REPOSITORY_OWNER}/packages/container/${MIGRATE_IMAGE}"
+          } >> "$GITHUB_STEP_SUMMARY"
