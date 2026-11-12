@@ -1,10 +1,43 @@
+# Keep the build context minimal: dependencies and build output are recreated
+# inside the image, and the local .env (which contains real credentials) must
+# never be copied into a layer.
+
+# --- Dependencies and build output -----------------------------------------
+node_modules/
 .next/
-node_modules
-.env.example
-.git/
+out/
+build/
+coverage/
+*.tsbuildinfo
+
+# --- Environment / secrets -------------------------------------------------
+.env
+.env.*
+*.pem
+
+# --- Version control / editor / CI -----------------------------------------
+.git
+.gitignore
+.github/
+.vscode/
+.idea/
 .DS_Store
 
-nginx.conf
+# --- Local-only project files ----------------------------------------------
 README.md
-
+AGENTS.md
+docker-compose.yml
+nginx.conf
+Dockerfile
+.dockerignore
 biome.json
+
+# --- Generated / transient files -------------------------------------------
+# `prisma7 generate` recreates this inside the builder stage.
+src/generated/
+pgdata/
+
+# --- Tests and fixtures ----------------------------------------------------
+**/*.test.*
+**/*.spec.*
+__tests__/
