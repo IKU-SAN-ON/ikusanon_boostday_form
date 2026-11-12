@@ -48,11 +48,6 @@ const DatePickerComponent = ({
           after: twoMonthFirstDay,
         }}
       />
-      <div className="flex gap-2 justify-end w-full">
-        <button className="btn btn-sm btn-primary">
-          <span>Reset</span>
-        </button>
-      </div>
     </div>
   );
 };
