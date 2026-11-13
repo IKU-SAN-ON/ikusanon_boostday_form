@@ -1,17 +1,14 @@
 "use client";
 
-import React from "react";
+import type React from "react";
 import { useState } from "react";
-
-import { TickIcon, CrossIcon } from "@/components/icons";
-
 import DateSelection from "@/components/DateSelect";
-
+import { CrossIcon, TickIcon } from "@/components/icons";
+import { cn } from "@/lib/utils";
 import { useSelectedDates } from "@/stores/selectedDate";
 
-import { cn } from "@/lib/utils";
-
-export interface InputPageClientSideProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface InputPageClientSideProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   token: string;
   previousData?: Date[];
 }
@@ -118,6 +115,7 @@ const InputPageClientSide = ({
         </div>
         <div className="flex justify-center">
           <button
+            type="button"
             className={cn(
               "w-full max-w-sm btn btn-accent",
               loading && "btn-disabled",

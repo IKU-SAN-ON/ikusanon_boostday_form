@@ -3,6 +3,7 @@
 Next.js + Prisma application for collecting and viewing Boost Day availability data.
 
 ## Table of Contents
+
 - [Versions](#versions)
 - [Quick Start](#quick-start)
 - [Documentation](#documentation)
@@ -15,6 +16,7 @@ Next.js + Prisma application for collecting and viewing Boost Day availability d
 - [Useful Links](#useful-links)
 
 ## Versions
+
 - App: `0.1.0`
 - Node.js: `>=20` (recommended)
 - Package manager: `pnpm@10.30.1`
@@ -24,12 +26,15 @@ Next.js + Prisma application for collecting and viewing Boost Day availability d
 - PostgreSQL: `15+` (Docker compose uses `postgres:15`)
 
 ## Quick Start
+
 ### 1) Install dependencies
+
 ```bash
 pnpm install
 ```
 
 ### 2) Create environment file
+
 Create `.env` in the project root (do not commit this file):
 
 ```env
@@ -42,12 +47,14 @@ POSTGRES_DB=<your_postgres_db>
 A `.env.example` has been attached for reference.
 
 ### 3) Generate Prisma client and run migrations
+
 ```bash
 pnpm prisma generate
 pnpm prisma migrate dev # for development purpose
 ```
 
 ### 4) Start development server
+
 ```bash
 pnpm run dev
 ```
@@ -55,6 +62,7 @@ pnpm run dev
 Open: `http://localhost:3000`
 
 ### Optional: Run with Docker Compose
+
 ```bash
 docker compose up --build
 ```
@@ -62,27 +70,33 @@ docker compose up --build
 ## Documentation
 
 ### Main Routes
+
 - `GET /` — landing page
 - `GET /input/[token]` — input page
 
 ### API Endpoints
+
 Public endpoints
+
 - `POST /api/v1/submit` — submit selected dates using token
 
 Internal endpoints
+
 - `POST /api/v1/internal/auth/tokengen` — generate token for a user (internal)
 - `GET /api/v1/internal/boostday/viewall?year=<yyyy>&month=<1-12>` — fetch all users' dates for a month (internal)
 - `GET /api/v1/internal/boostday/viewuser?userId=<id>&year=<yyyy>&month=<1-12>` — fetch one user’s dates (internal)
 
 ### Data Model (Prisma)
+
 - `tokenSessions` table
-	- `id`, `token`, `userId`, `expiresAt`
+  - `id`, `token`, `userId`, `expiresAt`
 - `availabilities` table
-	- `id`, `userId`, `date`, `createdAt`
+  - `id`, `userId`, `date`, `createdAt`
 
 View `prisma/schema.prisma` for details.
 
 ## File Structure
+
 ```text
 .
 ├─ prisma/
@@ -118,17 +132,20 @@ View `prisma/schema.prisma` for details.
 ```
 
 ## Browser Support
+
 This project uses the following browser target from `package.json`:
 
 - `> 1%`
 
 For best compatibility, use current stable versions of:
+
 - Chrome
 - Edge
 - Firefox
 - Safari
 
 ## Resources
+
 - Framework: Next.js App Router
 - ORM: Prisma
 - Database: PostgreSQL
@@ -138,7 +155,9 @@ For best compatibility, use current stable versions of:
 - Styling: Tailwind CSS + daisyUI
 
 ## Reporting Issues
+
 When reporting an issue, include:
+
 - Steps to reproduce
 - Expected behavior
 - Actual behavior
@@ -148,19 +167,25 @@ When reporting an issue, include:
 Please never paste secrets (for example: full database URLs, tokens, or passwords) into issues.
 
 ## FAQs
+
 ### Q: Where should I put environment variables?
+
 In a local `.env` file in the project root.
 
 ### Q: I changed `schema.prisma`. What should I run?
+
 Run Prisma commands to generate client and apply migrations.
 
 ### Q: Which endpoints are internal-only?
+
 All routes under `/api/v1/internal/*` are intended for internal use.
 
 ## Licensing
+
 No license file is currently included in this repository.
 
 ## Useful Links
+
 - Next.js: https://nextjs.org/docs
 - Prisma: https://www.prisma.io/docs
 - PostgreSQL: https://www.postgresql.org/docs/
