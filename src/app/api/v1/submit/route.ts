@@ -1,16 +1,12 @@
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-
-import { NextRequest, NextResponse } from "next/server";
-
-import { InvalidTokenError } from "@/lib/errors";
-
-import getTokenSession from "@/services/auth/getTokenSession";
-import submitUserDates from "@/services/userdata/boostdays/submitUserDates";
-
 import {
   SubmitDataRequestSchema,
   SubmitDataResponseSchema,
 } from "@/lib/definitions";
+import { InvalidTokenError } from "@/lib/errors";
+import getTokenSession from "@/services/auth/getTokenSession";
+import submitUserDates from "@/services/userdata/boostdays/submitUserDates";
 
 import { verifyDate } from "@/utils/verifyDate";
 

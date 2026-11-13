@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
-
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 const RandomImage = dynamic(() => import("@/components/nossr/random_image"), {
   ssr: false,
