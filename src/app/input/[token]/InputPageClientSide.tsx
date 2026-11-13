@@ -115,6 +115,7 @@ const InputPageClientSide = ({
         </div>
         <div className="flex justify-center">
           <button
+            type="button"
             className={cn(
               "w-full max-w-sm btn btn-accent",
               loading && "btn-disabled",
