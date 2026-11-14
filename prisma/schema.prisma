@@ -13,6 +13,14 @@ datasource db {
   provider = "postgresql"
 }
 
+enum chunithmDifficulty {
+  BAS
+  ADV
+  EXP
+  MAS
+  ULT
+}
+
 model tokenSession {
   id        String   @id @default(uuid())
   token     String   @unique
@@ -24,11 +32,24 @@ model tokenSession {
 
 model availability {
   id     String   @id @default(uuid())
-  userId String   
+  userId String
   date   DateTime @db.Date // Store only the date part, without time
   createdAt DateTime @default(now())
 
-  @@unique([userId, date]) 
+  @@unique([userId, date])
   @@index([date])
   @@map("availabilities")
+}
+
+model chunithmSong {
+  id            Int                 @id @default(autoincrement())
+  title         String
+  artist        String
+  genre         String
+  const         Float
+  difficulty    chunithmDifficulty
+  chunirec_id   String
+  notes         Int
+  unknown       Boolean
+  search_terms  String
 }
