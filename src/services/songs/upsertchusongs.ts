@@ -88,42 +88,48 @@ export async function upsertChuSongs(
       .map((song) => song.id);
 
     // Perform the database operations in a transaction
-    await prisma.$transaction(async (prisma) => {
-      // Create new songs
-      if (toCreate.length > 0) {
-        await prisma.chunithmSong.createMany({
-          data: toCreate.map((song) => ({
-            title: song.title,
-            artist: song.artist,
-            genre: song.genre,
-            const: song.const,
-            difficulty: song.diff,
-            notes: song.notes,
-            unknown: song.unknown,
-            chunirec_id: song.chunirec_id,
-            search_terms: buildSearchText(song),
-          })),
-        });
-      }
+    await prisma.$transaction(
+      async (prisma) => {
+        // Create new songs
+        if (toCreate.length > 0) {
+          await prisma.chunithmSong.createMany({
+            data: toCreate.map((song) => ({
+              title: song.title,
+              artist: song.artist,
+              genre: song.genre,
+              const: song.const,
+              difficulty: song.diff,
+              notes: song.notes,
+              unknown: song.unknown,
+              chunirec_id: song.chunirec_id,
+              search_terms: buildSearchText(song),
+            })),
+          });
+        }
 
-      // Update existing songs
-      for (const update of toUpdate) {
-        await prisma.chunithmSong.update({
-          where: { id: update.id },
-          data: {
-            ...update.data,
-            search_terms: update.newSearchTerms,
-          },
-        });
-      }
+        // Update existing songs
+        for (const update of toUpdate) {
+          await prisma.chunithmSong.update({
+            where: { id: update.id },
+            data: {
+              ...update.data,
+              search_terms: update.newSearchTerms,
+            },
+          });
+        }
 
-      // Delete songs that are no longer present in the incoming data
-      if (toDelete.length > 0) {
-        await prisma.chunithmSong.deleteMany({
-          where: { id: { in: toDelete } },
-        });
-      }
-    });
+        // Delete songs that are no longer present in the incoming data
+        if (toDelete.length > 0) {
+          await prisma.chunithmSong.deleteMany({
+            where: { id: { in: toDelete } },
+          });
+        }
+      },
+      {
+        maxWait: 15000, // 15 seconds
+        timeout: 30000, // 30 seconds
+      },
+    );
   } catch (error) {
     console.error("Error in upsertChuSongs:", error);
     throw error;
