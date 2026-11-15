@@ -23,9 +23,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      confusables:
-        specifier: ^1.1.1
-        version: 1.1.1
       dotenv:
         specifier: 17.4.2
         version: 17.4.2
@@ -957,10 +954,6 @@ packages:
 
   confbox@0.3.2:
     resolution: {integrity: sha512-ZUAKhKlkCOrIGKc8cj7zek9s9z1mveHif/25nUshI2BzCRzF7KH7KHa+Lnh2ubq+e1tIlaFuP763mzW4qVoehg==}
-
-  confusables@1.1.1:
-    resolution: {integrity: sha512-BzFtzUrufackm00Wb2zvrZV0ItRqPdWaUprU5FXHeZiJRrOWxGmXmQl/muGTF9EQl+MdBXz+Irk99meskGZmXw==}
-    engines: {node: '>=10', npm: '>=6'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -2284,8 +2277,6 @@ snapshots:
   confbox@0.2.4: {}
 
   confbox@0.3.2: {}
-
-  confusables@1.1.1: {}
 
   cross-spawn@7.0.6:
     dependencies:
